@@ -4,6 +4,7 @@ class View {
     square: document.getElementById('square'),
     rectangule: document.getElementById('rectangule'),
     circle: document.getElementById('circle'),
+    triangule: document.getElementById('figureTriangule'),
     line: document.getElementById('line'),
     color: document.getElementById('colorpicker'),
     heart: document.getElementById('heart'),
@@ -11,6 +12,9 @@ class View {
     textInput: document.getElementById('textInput'),
     clearButton: document.getElementById('clear'),
     image: document.getElementById('image'),
+    sizeofpencil: document.getElementById('sizeofpencil'),
+    sizeoftext: document.getElementById('sizeoftext'),
+    exportButton: document.getElementById('export'),
     optionSelected: ''
   };
   isDrawing = false;
@@ -26,6 +30,8 @@ class View {
     this.bindtext();
     this.bindimage();
     this.bindClearCanvas();
+    this.bindtriangule();
+    this.bindexport();
   }
 
   bindcanvas = handler => {
@@ -51,6 +57,12 @@ class View {
     this.Dom.circle.addEventListener('click', () => {
       this.unbindcanvas();
       this.bindcanvas(this.drawcircle);
+    });
+  };
+  bindtriangule = () => {
+    this.Dom.triangule.addEventListener('click', () => {
+      this.unbindcanvas();
+      this.bindcanvas(this.drawTriangule);
     });
   };
 
@@ -86,6 +98,10 @@ class View {
     this.Dom.clearButton.addEventListener('click', this.clearCanvas);
   };
 
+  bindexport = () => {
+    this.Dom.exportButton.addEventListener('click', this.export);
+  };
+
   unbindcanvas = () => {
     this.removeEventListenerDrawline();
     this.Dom.canvas.removeEventListener('click', this.optionSelected);
@@ -111,6 +127,17 @@ class View {
     this.context.fill();
   };
 
+  drawTriangule = event => {
+    const positions = this.getCursorPosition(event);
+    this.context.beginPath();
+    this.context.strokeStyle = '#00F';
+    this.context.moveTo(positions.x, positions.y);
+    this.context.lineTo(positions.x, 200 + positions.y);
+    this.context.lineTo(200 + positions.x, 200 + positions.y);
+    this.context.closePath();
+    this.context.stroke();
+  };
+
   drawheart = event => {
     let positions = this.getCursorPosition(event);
     this.context.beginPath();
@@ -127,7 +154,7 @@ class View {
 
   drawtext = event => {
     let positions = this.getCursorPosition(event);
-    this.context.font = '30px Arial';
+    this.context.font = this.Dom.sizeoftext.value + 'px Arial';
     this.context.fillStyle = this.Dom.color.value;
     this.context.fillText(this.Dom.textInput.value, positions.x, positions.y);
   };
@@ -151,6 +178,11 @@ class View {
     this.context.clearRect(0, 0, this.Dom.canvas.width, this.Dom.canvas.height);
   };
 
+  export = () => {
+    var exp = this.Dom.canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    aexport.setAttribute('href', exp);
+  };
+
   addEventListenersDrawline = () => {
     this.Dom.canvas.addEventListener('mousedown', this.GetFirstPosition);
     this.Dom.canvas.addEventListener('mousemove', this.DrawLine);
@@ -170,7 +202,7 @@ class View {
   };
   DrawLine = event => {
     this.context.lineCap = 'round';
-    this.context.lineWidth = 20;
+    this.context.lineWidth = this.Dom.sizeofpencil.value;
     this.context.strokeStyle = this.Dom.color.value;
     if (!this.isDrawing) return;
     this.context.beginPath();

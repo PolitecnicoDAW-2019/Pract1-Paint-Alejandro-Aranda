@@ -1,0 +1,34 @@
+#Config {
+  width: 270px;
+  float: left;
+  background-color: rgb(230, 230, 230);
+  height: 900px;
+}
+
+#palette {
+  width: 360px;
+  height: 900px;
+  right: 20px;
+  float: right;
+  position: relative;
+  background-color: rgb(230, 230, 230);
+  border: 1px solid #000000;
+}
+
+#canvas {
+  float: left;
+  position: relative;
+}
+
+.button-div {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+button {
+  color: #0099cc;
+  background-color: transparent;
+  border: 2px solid #0099cc;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
