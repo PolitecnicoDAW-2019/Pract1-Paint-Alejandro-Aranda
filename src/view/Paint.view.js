@@ -5,7 +5,7 @@ class View {
     rectangule: document.getElementById('rectangule'),
     circle: document.getElementById('circle'),
     triangule: document.getElementById('figureTriangule'),
-    line: document.getElementById('line'),
+    pencil: document.getElementById('line'),
     color: document.getElementById('colorpicker'),
     heart: document.getElementById('heart'),
     textButton: document.getElementById('textButton'),
@@ -22,10 +22,11 @@ class View {
   lastY = 0;
   context = this.Dom.canvas.getContext('2d');
   constructor() {
+    this.bindcolor();
     this.bindsquare();
     this.bindrectangule();
     this.bindcircle();
-    this.bindline();
+    this.bindpencil();
     this.bindheart();
     this.bindtext();
     this.bindimage();
@@ -37,6 +38,12 @@ class View {
   bindcanvas = handler => {
     this.optionSelected = handler;
     this.Dom.canvas.addEventListener('click', handler);
+  };
+
+  bindcolor = () => {
+    this.Dom.color.addEventListener('change', () => {
+      this.context.fillStyle = this.Dom.color.value;
+    });
   };
 
   bindsquare = () => {
@@ -66,10 +73,10 @@ class View {
     });
   };
 
-  bindline = () => {
-    this.Dom.line.addEventListener('click', () => {
+  bindpencil = () => {
+    this.Dom.pencil.addEventListener('click', () => {
       this.unbindcanvas();
-      this.bindcanvas(this.addEventListenersDrawline);
+      this.bindcanvas(this.addEventListenersPencil);
     });
   };
 
@@ -103,26 +110,23 @@ class View {
   };
 
   unbindcanvas = () => {
-    this.removeEventListenerDrawline();
+    this.removeEventListenerPencil();
     this.Dom.canvas.removeEventListener('click', this.optionSelected);
   };
 
   drawsquare = event => {
-    let positions = this.getCursorPosition(event);
-    this.context.fillStyle = this.Dom.color.value;
+    const positions = this.getCursorPosition(event);
     this.context.fillRect(positions.x, positions.y, 50, 50);
   };
 
   drawrectangule = event => {
-    let positions = this.getCursorPosition(event);
-    this.context.fillStyle = this.Dom.color.value;
+    const positions = this.getCursorPosition(event);
     this.context.fillRect(positions.x, positions.y, 150, 80);
   };
 
   drawcircle = event => {
-    let positions = this.getCursorPosition(event);
+    const positions = this.getCursorPosition(event);
     this.context.beginPath();
-    this.context.fillStyle = this.Dom.color.value;
     this.context.arc(positions.x, positions.y, 50, 0, 2 * Math.PI);
     this.context.fill();
   };
@@ -130,16 +134,14 @@ class View {
   drawTriangule = event => {
     const positions = this.getCursorPosition(event);
     this.context.beginPath();
-    this.context.strokeStyle = '#00F';
     this.context.moveTo(positions.x, positions.y);
     this.context.lineTo(positions.x, 200 + positions.y);
     this.context.lineTo(200 + positions.x, 200 + positions.y);
-    this.context.closePath();
-    this.context.stroke();
+    this.context.fill();
   };
 
   drawheart = event => {
-    let positions = this.getCursorPosition(event);
+    const positions = this.getCursorPosition(event);
     this.context.beginPath();
     this.context.moveTo(positions.x - 75, positions.y + 40);
     this.context.bezierCurveTo(positions.x - 75, positions.y + 37, positions.x - 70, positions.y + 25, positions.x - 50, positions.y + 25);
@@ -153,14 +155,14 @@ class View {
   };
 
   drawtext = event => {
-    let positions = this.getCursorPosition(event);
+    const positions = this.getCursorPosition(event);
     this.context.font = this.Dom.sizeoftext.value + 'px Arial';
     this.context.fillStyle = this.Dom.color.value;
     this.context.fillText(this.Dom.textInput.value, positions.x, positions.y);
   };
 
   drawImage = event => {
-    let positions = this.getCursorPosition(event);
+    const positions = this.getCursorPosition(event);
     if (this.Dom.image.files[0]) {
       const reader = new FileReader();
       reader.onload = event => {
@@ -179,31 +181,14 @@ class View {
   };
 
   export = () => {
-    var exp = this.Dom.canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    const exp = this.Dom.canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
     aexport.setAttribute('href', exp);
   };
 
-  addEventListenersDrawline = () => {
-    this.Dom.canvas.addEventListener('mousedown', this.GetFirstPosition);
-    this.Dom.canvas.addEventListener('mousemove', this.DrawLine);
-    this.Dom.canvas.addEventListener('mouseup', this.DrawingFalse);
-    this.Dom.canvas.addEventListener('mouseout', this.DrawingFalse);
-  };
-
-  removeEventListenerDrawline = () => {
-    this.Dom.canvas.removeEventListener('mousedown', this.GetFirstPosition);
-    this.Dom.canvas.removeEventListener('mousemove', this.DrawLine);
-    this.Dom.canvas.removeEventListener('mouseup', this.DrawingFalse);
-    this.Dom.canvas.removeEventListener('mouseout', this.DrawingFalse);
-  };
-  GetFirstPosition = event => {
-    this.isDrawing = true;
-    [this.lastX, this.lastY] = [event.offsetX, event.offsetY];
-  };
-  DrawLine = event => {
+  DrawPencil = event => {
     this.context.lineCap = 'round';
-    this.context.lineWidth = this.Dom.sizeofpencil.value;
     this.context.strokeStyle = this.Dom.color.value;
+    this.context.lineWidth = this.Dom.sizeofpencil.value;
     if (!this.isDrawing) return;
     this.context.beginPath();
     this.context.moveTo(this.lastX, this.lastY);
@@ -211,6 +196,25 @@ class View {
     this.context.stroke();
     [this.lastX, this.lastY] = [event.offsetX, event.offsetY];
   };
+
+  addEventListenersPencil = () => {
+    this.Dom.canvas.addEventListener('mousedown', this.GetFirstPosition);
+    this.Dom.canvas.addEventListener('mousemove', this.DrawPencil);
+    this.Dom.canvas.addEventListener('mouseup', this.DrawingFalse);
+    this.Dom.canvas.addEventListener('mouseout', this.DrawingFalse);
+  };
+
+  removeEventListenerPencil = () => {
+    this.Dom.canvas.removeEventListener('mousedown', this.GetFirstPosition);
+    this.Dom.canvas.removeEventListener('mousemove', this.DrawPencil);
+    this.Dom.canvas.removeEventListener('mouseup', this.DrawingFalse);
+    this.Dom.canvas.removeEventListener('mouseout', this.DrawingFalse);
+  };
+  GetFirstPosition = event => {
+    this.isDrawing = true;
+    [this.lastX, this.lastY] = [event.offsetX, event.offsetY];
+  };
+
   DrawingFalse = () => (this.isDrawing = false);
 
   getCursorPosition(event) {
